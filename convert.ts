@@ -449,7 +449,7 @@ const checkPropsIsUsed = (setupBody: types.namedTypes.BlockStatement | undefined
   return isUsed
 }
 
-export const convert = async (path: string): Promise<string[]> => {
+export const convert = async (path: string, dryRun = false): Promise<string[]> => {
   const warnings: string[] = []
   const outputWarning = (message: string) => {
     console.warn(`  ${message}`)
@@ -561,7 +561,11 @@ export const convert = async (path: string): Promise<string[]> => {
   }
   const newContent = ms.toString()
 
-  await fs.writeFile(path, newContent, 'utf-8')
+  if (dryRun) {
+    console.log(newContent)
+  } else {
+    await fs.writeFile(path, newContent, 'utf-8')
+  }
 
   return warnings
 }

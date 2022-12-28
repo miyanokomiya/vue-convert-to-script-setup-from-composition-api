@@ -2,6 +2,10 @@ import klaw from 'klaw'
 import path from 'node:path'
 import { convert } from './convert'
 
+const isDryRun = process.argv.some((a) => a === '-d')
+const fileArg = process.argv.findIndex((a) => a === '-f')
+const filePath = fileArg > -1 ? process.argv[fileArg + 1] : undefined
+
 const root = process.cwd()
 const ignores = [
   '.git',
@@ -13,25 +17,37 @@ const ignores = [
 const toRelative = (p: string) => path.relative(root, p)
 
 const main = async () => {
-  const list = klaw(root, {
-    filter: p => !ignores.includes(path.basename(p)),
-    depthLimit: -1
-  })
-
   const warningList: Array<{ file: string, messages: string[] }> = []
 
-  for await (const file of list) {
-    if (file.stats.isDirectory()) continue
-    if (path.extname(file.path) !== '.vue') continue
+  if (filePath) {
+      console.log(`Processing: ${toRelative(filePath)}`)
 
-    console.log(`Processing: ${toRelative(file.path)}`)
+      const warnings = await convert(filePath, isDryRun)
+      if (warnings.length > 0) {
+        warningList.push({
+          file: filePath,
+          messages: warnings
+        })
+      }
+  } else {
+    const list = klaw(root, {
+      filter: p => !ignores.includes(path.basename(p)),
+      depthLimit: -1
+    })
 
-    const warnings = await convert(file.path)
-    if (warnings.length > 0) {
-      warningList.push({
-        file: file.path,
-        messages: warnings
-      })
+    for await (const file of list) {
+      if (file.stats.isDirectory()) continue
+      if (path.extname(file.path) !== '.vue') continue
+
+      console.log(`Processing: ${toRelative(file.path)}`)
+
+      const warnings = await convert(file.path, isDryRun)
+      if (warnings.length > 0) {
+        warningList.push({
+          file: file.path,
+          messages: warnings
+        })
+      }
     }
   }
 
