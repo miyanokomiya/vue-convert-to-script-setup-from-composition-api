@@ -2,11 +2,13 @@ import klaw from 'klaw'
 import path from 'node:path'
 import { convert } from './convert'
 
-const isDryRun = process.argv.some((a) => a === '-d')
+const isDryRun = process.argv.some((a) => a === '--dry-run')
 const fileArg = process.argv.findIndex((a) => a === '-f')
 const filePath = fileArg > -1 ? process.argv[fileArg + 1] : undefined
+const dirArg = process.argv.findIndex((a) => a === '-d')
+const dirPath = dirArg > -1 ? process.argv[dirArg + 1] : undefined
 
-const root = process.cwd()
+const root = dirPath ?? process.cwd()
 const ignores = [
   '.git',
   'node_modules',

@@ -1,7 +1,20 @@
 # vue-convert-to-script-setup-from-composition-api
-## Usage
+This repository is for experiment and customization.
+Original repository is here: https://github.com/sapphi-red/vue-convert-to-script-setup-from-composition-api
 
-1. Clone this repository.
-1. Edit the script for your project.
-1. Run `npx esno /path/to/this/repository/index.ts`
-1. Composition API written files should be converted to `<script setup>`
+## Setup
+Clone this repository.
+
+## Usage
+### File
+```sh
+npx esno ./index.ts -f ./App.vue
+```
+
+### Directory
+```sh
+npx esno ./index.ts -d ./src
+```
+
+### Options
+- `---dry-run`: Keep original files from converting and print result to the console.
